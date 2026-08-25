@@ -1,0 +1,39 @@
+
+%mu_values = [ 0.3, 0.35 ];
+mu_values = [   0.15, 0.2, 0.25, 0.3, 0.35, 0.4; 0.5 , 0.6];
+G_values  = [ 0.03];
+
+mu_values1 = [   0.35, 0.4, 0.5];
+G_values1  = [ 0.03];
+%G_values  = [ 0.2, 0.3, 0.4];
+Number = 25000;
+tend =300000;
+
+for imu = 1:length(mu_values)
+
+    for iG = 1:length(G_values) 
+
+        mu0 = mu_values(imu);
+        G0  = G_values(iG);
+        
+        for imu1 = 1:length(mu_values1)
+
+            for iG1 = 1:length(G_values1) 
+
+                mu1 = mu_values1(imu1);
+                G1  = G_values1(iG1);
+
+
+
+                fprintf('Running mu0=%g G0=%g mu1=%g G1=%g\n',mu0,G0, mu1, G1);
+
+                Modello_2D_Anna_VMATLAB_rev(mu0,G0,mu1, G1, Number,tend);
+
+            end
+
+        end
+        
+
+    end
+
+end
