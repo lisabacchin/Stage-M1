@@ -1,4 +1,4 @@
-function Modele_2D(mu0,G0, Number, tend, dossier, random)
+function Modele_2D_corrige(mu0,G0, N0_cell_in_the_well, tend, dossier, random)
 %mod 
 %%%%%%%%%%%%%%%%%%%%%%%
 % ora mi ritorna valori ma le oscillazioni si smorzano
@@ -12,17 +12,24 @@ modlin   = 0;
 
 %mu0 = 0.20;    % RGM: 0.25 ca.
 %G0 = 0.1;     % RGM: 0.1
-%Number = 25000;
+%N0_cell_in_the_well = 25000;
 %tend = 40000;
 
 
+
 % time
+
 t0 = 0;
-%tend = 250;
+
 dt = 1;
+
 time = t0:dt:tend;
+
 tdim = length(time);
+
 % stability condition per metodo esplicito dt < dx^2/Dn
+
+
 
 % space
 x0 = 0;
@@ -31,6 +38,11 @@ xend = 4;    % largezza fov lente 4x
 dx = 0.1;
 xall = x0:dx:xend;
 xdim = length(xall);
+
+
+Well_Surface = 190; % Surface in mm^2
+
+Pixel_Surface = dx^2; % Surface in mm^2
 
 
 % variabili esplicite
@@ -43,25 +55,30 @@ DG = 0e-8;      % G immobile
 %DG = 0.236;    % Mobilità calcolata da Stokes
 
 
+
 Vol = 1/48;
- 
 
 
 
 
+n0 = N0_cell_in_the_well * (Pixel_Surface / Well_Surface);
 
-% mu0 = 1;
-% G0=1;
+
+
 % considero mu e G che variano tra 0 e 1
 
-% Ss = 0.31;
-% a_mu = 0.007;
-% a_G = 1;
+
 
 % valori dei parametri per equilibri stabili
-Ss = 1e-6;
-a_mu = 2.5e-6;
+
+a_mu = 3.4e-6 / (Pixel_Surface / Well_Surface);
+
+Ss = 1.5e-7 / (Pixel_Surface / Well_Surface);
+
 a_G = 0;
+
+
+
 
 
 
@@ -146,7 +163,7 @@ A= sparse (A);
 %noise = rand((M+1) *(N+1))*2 -1;
 
 % condizioni iniziali
-n0 = Number/(xend^2);
+%n0 = N0_cell_in_the_well/(xend^2);
 sd = sqrt(n0);
 noise = randi([-1, 1], (M+1) *(N+1),1);
 %noise = rand((M+1) *(N+1)) * 2 -1;
@@ -213,7 +230,8 @@ if implicit
         mu1=mu2;
         G1=G2;
     
-        nt_tot = sum(n(:,:)) * dx^2;
+        %nt_tot = sum(n(:,:)) * dx^2;
+        nt_tot = sum(n(:,:));
         nt(k) = nt_tot;
         
         % salvo i valori nelle matrici esterne
@@ -233,54 +251,54 @@ if implicit
             %clim([0 max(Nsup(:))]);
     
             % Update title
-            title(sprintf('n(x,y;t) at t = %.2f, cells = %.2f, mu = %.3f, G = %.3f ', z, Number, mu0, G0));
+            title(sprintf('n(x,y;t) at t = %.2f, cells = %.2f, mu = %.3f, G = %.3f ', z, N0_cell_in_the_well, mu0, G0));
     
             drawnow;
         end
 
-        % if mod(z,50000) == 0
-        %     figure (2)
-        %     parN =n;%(1 : M*N);
-        %     Nsup = reshape(parN,[M+1,N+1])';
-        %     surf(X,Y,Nsup);
-        %     shading interp
-        %     view (2);
-        % 
-        %     % axis equal;
-        %     clim([0 max(Nsup(:))]);
-        %     hcb = colorbar;
-        %     hcb.Label.String = 'cell density n(x,y;t)';
-        % 
-        %     title(sprintf('n(x,t) at t = %.2f, cells = %.2f, mu = %.3f, G = %.3f ', z, Number, mu0, G0));%, 'FontSize', 14, 'FontWeight', 'bold');
-        %     xlabel('X');
-        %     ylabel('Y');
-        %     figDir = fullfile(pwd,'2D_ntRD1');
-        % 
-        %     if ~exist(figDir,'dir')
-        %         mkdir(figDir);
-        %     end
-        % 
-        %     % Nom propre (IMPORTANT)
-        %     filename = sprintf('mu_%0.3f_G_%0.3f_t_%0.0f_cell_%0.0f', mu0, G0, z, Number);
-        % 
-        %     outputPNG = fullfile(figDir, [filename '.png']);
-        %     outputMAT = fullfile(figDir, [filename '.mat']);
-        % 
-        %     % Sauvegarde des données
-        %     save(outputMAT, 'X','Y','Nsup');
-        %     % Sauvegarde image PNG
-        %     exportgraphics(gcf, outputPNG, 'Resolution', 300);
-        %     % Update surface without creating a new plot
-        %     set(h,'ZData',Nsup);
-        % 
-        %     % Update colors
-        %     %clim([0 max(Nsup(:))]);
-        % 
-        %     % Update title
-        %     title(sprintf('n(x,y;t) at t = %.2f, cells = %.2f, mu = %.3f, G = %.3f ', z, Number, mu0, G0));
-        % 
-        %     drawnow;
-        % end
+        if mod(z,50000) == 0
+            figure (2)
+            parN =n;%(1 : M*N);
+            Nsup = reshape(parN,[M+1,N+1])';
+            surf(X,Y,Nsup);
+            shading interp
+            view (2);
+
+            % axis equal;
+            clim([0 max(Nsup(:))]);
+            hcb = colorbar;
+            hcb.Label.String = 'cell density n(x,y;t)';
+
+            title(sprintf('n(x,t) at t = %.2f, cells = %.2f, mu = %.3f, G = %.3f ', z, N0_cell_in_the_well, mu0, G0));%, 'FontSize', 14, 'FontWeight', 'bold');
+            xlabel('X');
+            ylabel('Y');
+            figDir = fullfile(pwd,'2D_ntRD1');
+
+            if ~exist(figDir,'dir')
+                mkdir(figDir);
+            end
+
+            % Nom propre (IMPORTANT)
+            filename = sprintf('mu_%0.3f_G_%0.3f_t_%0.0f_cell_%0.0f', mu0, G0, z, N0_cell_in_the_well);
+
+            outputPNG = fullfile(figDir, [filename '.png']);
+            outputMAT = fullfile(figDir, [filename '.mat']);
+
+            % Sauvegarde des données
+            save(outputMAT, 'X','Y','Nsup');
+            % Sauvegarde image PNG
+            exportgraphics(gcf, outputPNG, 'Resolution', 300);
+            % Update surface without creating a new plot
+            set(h,'ZData',Nsup);
+
+            % Update colors
+            %clim([0 max(Nsup(:))]);
+
+            % Update title
+            title(sprintf('n(x,y;t) at t = %.2f, cells = %.2f, mu = %.3f, G = %.3f ', z, N0_cell_in_the_well, mu0, G0));
+
+            drawnow;
+        end
         
         z=z+dt;
     end
@@ -296,12 +314,12 @@ if implicit
     view (2);
     
     % axis equal;
-    % clim([0 max(Nsup(:))]);
-    clim([0 1100000]);
+    clim([0 max(Nsup(:))]);
+    %clim([0 200]);
     hcb = colorbar;
-    hcb.Label.String = 'cell density n(x,y;t)';
+    hcb.Label.String = 'cell density n(x,y;t)/px';
     
-    title(sprintf('n(x,t) at t = %.2f, cells = %.2f, mu = %.3f, G = %.3f ', tend, Number, mu0, G0));%, 'FontSize', 14, 'FontWeight', 'bold');
+    title(sprintf('n(x,t) at t = %.2f, cells = %.2f, mu = %.3f, G = %.3f ', tend, N0_cell_in_the_well, mu0, G0));%, 'FontSize', 14, 'FontWeight', 'bold');
     xlabel('X');
     ylabel('Y');
 figDir = fullfile(pwd,dossier);
@@ -311,7 +329,7 @@ if ~exist(figDir,'dir')
 end
 
 % Nom propre (IMPORTANT)
-filename = sprintf('mu_%0.3f_G_%0.3f_t_%0.0f_cell_%0.0f', mu0, G0, tend, Number);
+filename = sprintf('mu_%0.3f_G_%0.3f_t_%0.0f_cell_%0.0f', mu0, G0, tend, N0_cell_in_the_well);
 
 outputPNG = fullfile(figDir, [filename '.png']);
 outputMAT = fullfile(figDir, [filename '.mat']);
@@ -407,7 +425,7 @@ if esplicit
     % axis equal;
     %clim([0 max(Nsup(:))]);
     hcb = colorbar;
-    hcb.Label.String = 'cell density n(x,y;t)';
+    hcb.Label.String = 'cell density n(x,y;t)/px';
     
     title(sprintf('n(x,t) at t = %.2f, V = %.2f', tend, Vol));%, 'FontSize', 14, 'FontWeight', 'bold');
     xlabel('X');
@@ -462,11 +480,18 @@ save(outputMAT, 'time','va');
 
 figure()
 hold on
-title('n(t) totale')
+title('N(t)')
 xlabel('Time[h]')
 ylabel('n(t)')
 plot(time,nt(1:length(time)))
 ylim([0,max(nt)])
+
+filename = sprintf('mu_%0.3f_G_%0.3f_t_%0.0f_cell_%0.0f_n(t)', mu0, G0, tend, N0_cell_in_the_well);
+
+outputPNG = fullfile(figDir, [filename '.png']);
+
+% Sauvegarde image PNG
+exportgraphics(gcf, outputPNG, 'Resolution', 300);
 hold off
 
 

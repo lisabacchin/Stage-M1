@@ -479,6 +479,9 @@ for i = 1:5:tdim
 end
 n_vec = n_vec(n_vec ~= 0);
 
+
+
+
 figure()
 hold on
 title('n(t) totale')

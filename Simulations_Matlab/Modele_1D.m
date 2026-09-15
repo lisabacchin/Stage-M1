@@ -243,41 +243,41 @@ if implicit
             drawnow;
         end
 
-        % if (mod(z,10000) == 0) 
-        %     figure (2)
-        %     parN =n;%(1 : M*N);
-        %     Nsup = reshape(parN,[M+1,N+1])';
-        %     surf(X,Y,Nsup);
-        %     shading interp
-        %     view (2);
-        % 
-        %     % axis equal;
-        %     clim([0 max(Nsup(:))]);
-        %     hcb = colorbar;
-        %     hcb.Label.String = 'cell density n(x,y;t)';
-        % 
-        %     title(sprintf('n(x,t) at t = %.2f, cells = %.2f, mu = %.3f, G = %.3f ', z, Number, mu0, G0));%, 'FontSize', 14, 'FontWeight', 'bold');
-        %     xlabel('X');
-        %     ylabel('Y');
-        %     figDir = fullfile(pwd,'Evoltemp_1D3');
-        % 
-        %     if ~exist(figDir,'dir')
-        %         mkdir(figDir);
-        %     end
-            % 
-            % % Nom propre (IMPORTANT)
-            % filename = sprintf('mu_%0.3f_G_%0.3f_t_%0.0f_cell_%0.0f', mu0, G0, z, Number);
-            % 
-            % outputPNG = fullfile(figDir, [filename '.png']);
-            % outputMAT = fullfile(figDir, [filename '.mat']);
-            % 
-            % % Sauvegarde des données
-            % save(outputMAT, 'X','Y','Nsup');
-            % 
-            % % Sauvegarde image PNG
-            % exportgraphics(gcf, outputPNG, 'Resolution', 300);
+        if (mod(z,10000) == 0) 
+            figure (2)
+            parN =n;%(1 : M*N);
+            Nsup = reshape(parN,[M+1,N+1])';
+            surf(X,Y,Nsup);
+            shading interp
+            view (2);
 
-        % end
+            % axis equal;
+            clim([0 max(Nsup(:))]);
+            hcb = colorbar;
+            hcb.Label.String = 'cell density n(x,y;t)';
+
+            title(sprintf('n(x,t) at t = %.2f, cells = %.2f, mu = %.3f, G = %.3f ', z, Number, mu0, G0));%, 'FontSize', 14, 'FontWeight', 'bold');
+            xlabel('X');
+            ylabel('Y');
+            figDir = fullfile(pwd,'Evoltemp_1D3');
+
+            if ~exist(figDir,'dir')
+                mkdir(figDir);
+            end
+
+            % Nom propre (IMPORTANT)
+            filename = sprintf('mu_%0.3f_G_%0.3f_t_%0.0f_cell_%0.0f', mu0, G0, z, Number);
+
+            outputPNG = fullfile(figDir, [filename '.png']);
+            outputMAT = fullfile(figDir, [filename '.mat']);
+
+            % Sauvegarde des données
+            save(outputMAT, 'X','Y','Nsup');
+
+            % Sauvegarde image PNG
+            exportgraphics(gcf, outputPNG, 'Resolution', 300);
+
+        end
         
         z=z+dt;
     end
